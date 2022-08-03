@@ -1,4 +1,4 @@
-# MatRiCT+
+# iVRF
 
 This is the implementation source code for the paper:
 
