@@ -2,7 +2,7 @@
 
 This is the implementation source code for the paper:
 
-Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2022). A New Look at Blockchain Leader Election:\\Simple, Efficient, Sustainable and Post-Quantum.
+Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2022). A New Look at Blockchain Leader Election:\\Simple, Efficient, Sustainable and Post-Quantum. IACR Cryptology ePrint Archive [2022/993](https://ia.cr/2022/993).
 
 To compile the source code:
 
