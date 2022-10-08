@@ -157,7 +157,7 @@ void eval(unsigned char *v, unsigned char *y, TREE_NODE *ap, unsigned char *pk, 
 	
 	cycle2 = cpucycles();
     /* Update the index in the secret key. */
-    ull_to_bytes(sk, params.index_bytes, j_in);
+    xmss_sk_update(&params, sk, j_in);
 
 	/* sig <-- XMSS.Sign(sk, \mu_2) */
 	xmss_core_sign(&params, sk, sig_attach, &sig_len, mu2, MU_LENGTH);

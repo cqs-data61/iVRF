@@ -30,6 +30,10 @@ int xmss_core_seed_keypair(const xmss_params *params,
                              unsigned char *pk, unsigned char *sk,
                              unsigned char *seed);
 
+/* Update idx in sk */
+int xmss_sk_update(const xmss_params *params,
+                   unsigned char *sk, unsigned long j_in);
+
 /**
  * Signs a message. Returns an array containing the signature followed by the
  * message and an updated secret key.

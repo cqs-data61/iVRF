@@ -737,6 +737,49 @@ int xmss_core_sign(const xmss_params *params,
     return 0;
 }
 
+/* Update idx in sk */
+int xmss_sk_update(const xmss_params *params,
+                   unsigned char *sk, unsigned long j_in)
+{
+    // TODO refactor BDS state not to need separate treehash instances
+    bds_state state;
+    treehash_inst treehash[params->tree_height - params->bds_k];
+    state.treehash = treehash;
+
+    /* Load the BDS state from sk. */
+    xmss_deserialize_state(params, &state, sk);
+
+    unsigned long idx;
+
+    unsigned char sk_seed[params->n];
+    memcpy(sk_seed, sk + params->index_bytes, params->n);
+    unsigned char pub_seed[params->n];
+    memcpy(pub_seed, sk + params->index_bytes + 3*params->n, params->n);
+
+	uint32_t ots_addr[8] = {0};
+	
+	for (idx = 0; idx < j_in; idx++)
+	{
+		// Update SK
+		sk[0] = ((idx + 1) >> 24) & 255;
+		sk[1] = ((idx + 1) >> 16) & 255;
+		sk[2] = ((idx + 1) >> 8) & 255;
+		sk[3] = (idx + 1) & 255;
+
+		// Prepare Address
+		set_type(ots_addr, 0);
+		set_ots_addr(ots_addr, idx);
+
+		bds_round(params, &state, idx, sk_seed, pub_seed, ots_addr);
+		bds_treehash_update(params, &state, (params->tree_height - params->bds_k) >> 1, sk_seed, pub_seed, ots_addr);
+	}
+
+	/* Write the updated BDS state back into sk. */
+	xmss_serialize_state(params, sk, &state);
+
+    return 0;
+}
+
 /*
  * Derives a XMSSMT key pair for a given parameter set.
  * Seed must be 3*n long.
