@@ -88,8 +88,8 @@ ui/xmss_%: ui/%.c $(SOURCES) $(OBJS) $(HEADERS)
 ui/xmssmt_%: ui/%.c $(SOURCES) $(OBJS) $(HEADERS)
 	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
 
-ivrf: ivrf.c $(SOURCES_FAST) $(IVRF_SOURCES) $(OBJS) $(HEADERS_FAST) $(IVRF_HEADERS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES_FAST) $(IVRF_SOURCES) $< $(LDLIBS)
+ivrf: ivrf.c $(SOURCES) $(IVRF_SOURCES) $(OBJS) $(HEADERS) $(IVRF_HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(IVRF_SOURCES) $< $(LDLIBS)
 
 clean:
 	-$(RM) $(TESTS)
