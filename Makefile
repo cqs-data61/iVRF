@@ -1,111 +1,98 @@
-# Modified by Raymond K. Zhao to compile iVRF.
-# Original copyright info from Falcon: 
-# ==========================(LICENSE BEGIN)============================
-#
-# Copyright (c) 2017-2019  Falcon Project
-#
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# ===========================(LICENSE END)=============================
-
-.POSIX:
-
-# =====================================================================
-#
-# Configurable options:
-#   CC       C compiler; GCC or Clang are fine; MSVC (2015+) works too.
-#   CFLAGS   Compilation flags:
-#             * Optimization level -O2 or higher is recommended
-#            See config.h for some possible configuration macros.
-#   LD       Linker; normally the same command as the compiler.
-#   LDFLAGS  Linker options, not counting the extra libs.
-#   LIBS     Extra libraries for linking:
-#             * If using the native FPU, test_falcon and application
-#               code that calls this library may need: -lm
-#               (normally not needed on x86, both 32-bit and 64-bit)
-
 CC = clang
 CFLAGS = -Wall -Wextra -Wshadow -Wundef -O3 -march=native #-pg -fno-pie
 LD = clang
 LDFLAGS = #-pg -no-pie
-LIBS = -lm -lcrypto
+LDLIBS = -lm -lcrypto
 
-# =====================================================================
+SOURCES = params.c hash.c fips202.c hash_address.c randombytes.c wots.c xmss.c xmss_core.c xmss_commons.c utils.c
+HEADERS = params.h hash.h fips202.h hash_address.h randombytes.h wots.h xmss.h xmss_core.h xmss_commons.h utils.h
 
-OBJ = codec.o common.o falcon.o fft.o fpr.o keygen.o rng.o shake.o sign.o vrfy.o
+SOURCES_FAST = $(subst xmss_core.c,xmss_core_fast.c,$(SOURCES))
+HEADERS_FAST = $(subst xmss_core.c,xmss_core_fast.c,$(HEADERS))
 
-all: test_falcon speed ivrf
+IVRF_SOURCES = drbg_rng.c cpucycles.c
+IVRF_HEADERS = drbg_rng.h cpucycles.h
+
+TESTS = test/wots \
+		test/oid \
+		test/speed \
+		test/xmss_determinism \
+		test/xmss \
+		test/xmss_fast \
+		test/xmssmt \
+		test/xmssmt_fast \
+		test/maxsigsxmss \
+		test/maxsigsxmssmt \
+
+UI = ui/xmss_keypair \
+	 ui/xmss_sign \
+	 ui/xmss_open \
+	 ui/xmssmt_keypair \
+	 ui/xmssmt_sign \
+	 ui/xmssmt_open \
+	 ui/xmss_keypair_fast \
+	 ui/xmss_sign_fast \
+	 ui/xmss_open_fast \
+	 ui/xmssmt_keypair_fast \
+	 ui/xmssmt_sign_fast \
+	 ui/xmssmt_open_fast \
+
+all: tests ui ivrf
+
+tests: $(TESTS)
+ui: $(UI)
+
+test: $(TESTS:=.exec)
+
+.PHONY: clean test
+
+test/%.exec: test/%
+	@$<
+
+test/xmss_fast: test/xmss.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSS_SIGNATURES=128 $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/xmss: test/xmss.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+
+test/xmssmt_fast: test/xmss.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSSMT -DXMSS_SIGNATURES=1024 $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/xmssmt: test/xmss.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+
+test/speed: test/speed.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSS_VARIANT=\"XMSS-SHA2_7_256\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/vectors: test/vectors.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+	
+test/maxsigsxmss: test/xmss_max_signatures.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/maxsigsxmssmt: test/xmss_max_signatures.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+	
+test/%: test/%.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+
+ui/xmss_%_fast: ui/%.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+ui/xmssmt_%_fast: ui/%.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+ui/xmss_%: ui/%.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+
+ui/xmssmt_%: ui/%.c $(SOURCES) $(OBJS) $(HEADERS)
+	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
+
+ivrf: ivrf.c $(SOURCES_FAST) $(IVRF_SOURCES) $(OBJS) $(HEADERS_FAST) $(IVRF_HEADERS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES_FAST) $(IVRF_SOURCES) $< $(LDLIBS)
 
 clean:
-	-rm -f $(OBJ) test_falcon test_falcon.o speed speed.o ivrf ivrf.o drbg_rng.o cpucycles.o
-
-test_falcon: test_falcon.o $(OBJ)
-	$(LD) $(LDFLAGS) -o test_falcon test_falcon.o $(OBJ) $(LIBS)
-
-speed: speed.o $(OBJ)
-	$(LD) $(LDFLAGS) -o speed speed.o $(OBJ) $(LIBS)
-
-ivrf: ivrf.o drbg_rng.o cpucycles.o $(OBJ)
-	$(LD) $(LDFLAGS) -o ivrf ivrf.o drbg_rng.o cpucycles.o $(OBJ) $(LIBS)
-
-codec.o: codec.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o codec.o codec.c
-
-common.o: common.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o common.o common.c
-
-falcon.o: falcon.c falcon.h config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o falcon.o falcon.c
-
-fft.o: fft.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o fft.o fft.c
-
-fpr.o: fpr.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o fpr.o fpr.c
-
-keygen.o: keygen.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o keygen.o keygen.c
-
-rng.o: rng.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o rng.o rng.c
-
-shake.o: shake.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o shake.o shake.c
-
-sign.o: sign.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o sign.o sign.c
-
-speed.o: speed.c falcon.h
-	$(CC) $(CFLAGS) -c -o speed.o speed.c
-
-test_falcon.o: test_falcon.c falcon.h config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o test_falcon.o test_falcon.c
-
-vrfy.o: vrfy.c config.h inner.h fpr.h
-	$(CC) $(CFLAGS) -c -o vrfy.o vrfy.c
-
-drbg_rng.o: drbg_rng.c drbg_rng.h
-	$(CC) $(CFLAGS) -c -o drbg_rng.o drbg_rng.c
-
-ivrf.o: ivrf.c drbg_rng.h falcon.h cpucycles.h inner.h
-	$(CC) $(CFLAGS) -c -o ivrf.o ivrf.c
-
-cpucycles.o: cpucycles.c cpucycles.h
-	$(CC) $(CFLAGS) -c -o cpucycles.o cpucycles.c
+	-$(RM) $(TESTS)
+	-$(RM) test/vectors
+	-$(RM) $(UI)
+	-$(RM) ivrf
