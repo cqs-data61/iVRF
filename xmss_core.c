@@ -287,3 +287,12 @@ int xmssmt_core_sign(const xmss_params *params,
 
     return 0;
 }
+
+/* Update idx in sk */
+int xmss_sk_update(const xmss_params *params,
+                   unsigned char *sk, unsigned long j_in)
+{
+	ull_to_bytes(sk, params->index_bytes, j_in);
+	
+	return 0;
+}
