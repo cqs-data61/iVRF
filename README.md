@@ -1,8 +1,8 @@
 # iVRF
 
-This is the implementation source code for the paper:
+This is the implementation source code (using the XMSS signature) for the paper:
 
-Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2022). A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable and Post-Quantum. IACR Cryptology ePrint Archive [2022/993](https://ia.cr/2022/993).
+Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2023). A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable and Post-Quantum. Proceedings of the AsiaCCS 2023. [Preprint](https://ia.cr/2022/993).
 
 To compile the source code:
 
