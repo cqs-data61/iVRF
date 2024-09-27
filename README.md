@@ -4,6 +4,23 @@ This is the implementation source code (using the XMSS signature) for the paper:
 
 Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2023). A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable and Post-Quantum. Proceedings of the AsiaCCS 2023. [Preprint](https://ia.cr/2022/993).
 
+@inproceedings{DBLP:conf/asiaccs/EsginEKLSSYZ23,
+  author       = {Muhammed F. Esgin and
+                  Oguzhan Ersoy and
+                  Veronika Kuchta and
+                  Julian Loss and
+                  Amin Sakzad and
+                  Ron Steinfeld and
+                  Xiangwen Yang and
+                  Raymond K. Zhao},
+  title        = {A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable
+                  and Post-Quantum},
+  booktitle    = {AsiaCCS},
+  pages        = {623--637},
+  publisher    = {{ACM}},
+  year         = {2023}
+}
+
 To compile the source code:
 
 1. Run `make ivrf` to compile the source code.
