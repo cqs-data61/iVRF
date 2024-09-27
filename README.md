@@ -2,7 +2,7 @@
 
 This is the implementation source code (using the Falcon signature) for the paper:
 
-Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2023). A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable and Post-Quantum. Proceedings of the AsiaCCS 2023. [Preprint](https://ia.cr/2022/993).
+Muhammed F. Esgin, Oğuzhan Ersoy, Veronika Kuchta, Julian Loss, Amin Sakzad, Ron Steinfeld, Wayne Yang, & Raymond K. Zhao. (2023). A New Look at Blockchain Leader Election: Simple, Efficient, Sustainable and Post-Quantum. Proceedings of AsiaCCS 2023. DOI [10.1145/3579856.3595792](https://doi.org/10.1145/3579856.3595792).
 
 @inproceedings{DBLP:conf/asiaccs/EsginEKLSSYZ23,
   author       = {Muhammed F. Esgin and
